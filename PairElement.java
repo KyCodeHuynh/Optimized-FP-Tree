@@ -1,6 +1,6 @@
 import java.util.Comparator;
 
-public class PairElement { 
+public class PairElement {
     private String item1;
     private String item2;
 
@@ -10,7 +10,7 @@ public class PairElement {
         item2 = null;
     }
 
-    public PairElement(String item1, String, item2)
+    public PairElement(String item1, String item2)
     {
         this.item1 = item1;
         this.item2 = item2;
@@ -46,7 +46,7 @@ public class PairElement {
     public String toString()
     {
         // (item1, item2)
-        return "(" + item1 + "," + item2 ")";
+        return "(" + item1 + "," + item2 + ")";
     }
 
     // Compares items setwise (ab = ba)
@@ -55,7 +55,7 @@ public class PairElement {
         boolean result = false;
         if (other instanceof PairElement) {
             PairElement that = (PairElement) other;
-            result = (this.item1 == that.item1 && this.item2 == that.item2) || 
+            result = (this.item1 == that.item1 && this.item2 == that.item2) ||
                      (this.item1 == that.item2 && this.item2 == that.item1);
         }
         return result;
