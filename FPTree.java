@@ -272,6 +272,16 @@ public class FPTree {
     public void createHeaderTable(Hashtable<String,Integer> itemsFrequencyTable, Hashtable<PairElement,Integer> pairFrequencyTable) {
         PairElement highestPair = new PairElement();
         Hashtable<PairElement, Double> pairwiseLifts = computePairwiseLifts(itemsFrequencyTable, pairFrequencyTable, highestPair);
+
+        // Prune out infrequent items from itemsFrequencyTable
+        pruneInfrequentItems(itemsFrequencyTable);
+
+        // Add the items in the highest pair to the f-list
+        ArrayList<ItemElement> flist = new ArrayList<>();
+        flist.add(highestPair.getFirst());
+        flist.add(highestPair.getSecond());
+
+
     }
 
     public static Hashtable<PairElement,Double> computePairwiseLifts(Hashtable<String, Integer> itemsFrequencyTable,
@@ -280,25 +290,38 @@ public class FPTree {
         Hashtable<PairElement, Double> pairwiseLifts = new Hashtable<>();
         double maxLift = Double.MIN_VALUE;
 
-        for (Map.Entry<PairElement, Integer> entry : pairFrequencyTable) {
+        for (Map.Entry<PairElement, Integer> entry : pairFrequencyTable.entrySet()) {
             PairElement pair = entry.getKey();
-            int pairFrequency = entry.getValue();
+            String first = pair.getFirst();
+            String second = pair.getSecond();
+            int firstFrequency = itemsFrequencyTable.get(first);
+            int secondFrequency = itemsFrequencyTable.get(second);
 
-            int firstFrequency = itemsFrequencyTable.get(pair.getFirst());
-            int secondFrequency = itemsFrequencyTable.get(pair.getSecond());
+            // Compute lift if both individual items are frequent
+            if (firstFrequency >= support_threshold && secondFrequency >= support_threshold) {
+                int pairFrequency = entry.getValue();
 
-            // TODO: Do we really need the * N?
-            double lift = ((double) pairFrequency) / (firstFrequency * secondFrequency);
-            pairwiseLifts.put(pair, lift);
+                // TODO: Do we really need the * N?
+                double lift = ((double) pairFrequency) / (firstFrequency * secondFrequency);
+                pairwiseLifts.put(pair, lift);
 
-            if (maxLift < lift) {
-                maxLift = lift;
-                highestPair.setFirst(pair.getFirst());
-                highestPair.setSecond(pair.getSecond());
+                if (maxLift < lift) {
+                    maxLift = lift;
+                    highestPair.setFirst(first);
+                    highestPair.setSecond(second);
+                }
             }
         }
-
         return pairwiseLifts;
+    }
+
+    public static void pruneInfrequentItems(Hashtable<String, Integer> itemsFrequencyTable) {
+        for(Iterator<Map.Entry<String, Integer>> it = itemsFrequencyTable.entrySet().iterator(); it.hasNext();) {
+            Map.Entry<String, Integer> entry = it.next();
+            if (entry.getValue() < support_threshold) {
+                it.remove();
+            }
+        }
     }
 
     /*
