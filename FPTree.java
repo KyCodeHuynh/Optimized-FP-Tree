@@ -277,11 +277,53 @@ public class FPTree {
         pruneInfrequentItems(itemsFrequencyTable);
 
         // Add the items in the highest pair to the f-list
-        ArrayList<ItemElement> flist = new ArrayList<>();
-        flist.add(highestPair.getFirst());
-        flist.add(highestPair.getSecond());
+        ArrayList<String> flist = new ArrayList<>();
+        String highestPairFirst = highestPair.getFirst();
+        String highestPairSecond = highestPair.getSecond();
+        flist.add(highestPairFirst);
+        flist.add(highestPairSecond);
 
+        // Remove items in highest pair from frequency table
+        itemsFrequencyTable.remove(highestPair.getFirst());
+        itemsFrequencyTable.remove(highestPair.getSecond());
 
+        while (!itemsFrequencyTable.isEmpty()) {
+            double maxTotalLift = Double.MIN_VALUE;
+            String maxTotalLiftItem = "";
+
+            for (Map.Entry<String, Integer> entry : itemsFrequencyTable.entrySet()) {
+                String curItem = entry.getKey();
+                // int curItemFrequency = curItem.getFrequency();
+                double totalLift = 0.0;
+
+                for (String flistItem : flist) {
+                    // int flistItemFrequency = flistItem.getFrequency();
+                    PairElement pair = new PairElement(curItem, flistItem);
+                    Double lift = pairwiseLifts.get(pair);
+                    if (lift == null) {
+                        pair.setFirst(flistItem, curItem);
+                        lift = pairwiseLifts.get(pair);
+                    }
+
+                    totalLift += lift;
+                }
+
+                if (maxTotalLift < totalLift) {
+                    maxTotalLift = totalLift;
+                    maxTotalLiftItem = curItem;
+                }
+            }
+
+            flist.add(maxTotalLiftItem);
+
+            // Remove the item just added to reduce search space for future iterations
+            itemsFrequencyTable.remove(maxTotalLiftItem);
+        }
+
+        int length = flist.size();
+        for (int i = 0; i < length; i++) {
+            header_table.add(new FPTreeHeaderElement(flist.get(i)));
+        }
     }
 
     public static Hashtable<PairElement,Double> computePairwiseLifts(Hashtable<String, Integer> itemsFrequencyTable,
