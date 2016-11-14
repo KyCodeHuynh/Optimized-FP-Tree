@@ -22,7 +22,6 @@ import java.util.Collections;
 import java.util.Enumeration;
 import java.util.Hashtable;
 
-
 public class FPTree {
     private ArrayList<FPTreeHeaderElement> header_table;
     private FPTreeNode fptree_root;
@@ -130,10 +129,11 @@ public class FPTree {
     public void constructFPTree(File inputfile)
     {
         Hashtable<String, Integer> items_frequency = new Hashtable<String, Integer>();
+        Hashtable<PairElement, Integer> pairs_frequency = new Hashtable<PairElement, Integer>();
 
         try
         {
-            firstScan(inputfile, items_frequency); //fp-tree header table will be created in the first scan
+            firstScan(inputfile, items_frequency, pairs_frequency); //fp-tree header table will be created in the first scan
         }
         catch(IOException ioe)
         {
@@ -160,10 +160,11 @@ public class FPTree {
     public void constructFPTree(File inputfile, int start_at, int end_at)
     {
         Hashtable<String, Integer> items_frequency = new Hashtable<String, Integer>();
+        Hashtable<PairElement, Integer> pairs_frequency = new Hashtable<PairElement, Integer>();
 
         try
         {
-            firstScan(inputfile, items_frequency, start_at, end_at); //fp-tree header table will be created in the first scan
+            firstScan(inputfile, items_frequency, pairs_frequency, start_at, end_at); //fp-tree header table will be created in the first scan
         }
         catch(IOException ioe)
         {
@@ -187,8 +188,9 @@ public class FPTree {
     public void constructFPTree(ArrayList<String> cond_pattern_base)
     {
         Hashtable<String, Integer> items_frequency = new Hashtable<String, Integer>();
+        Hashtable<PairElement, Integer> pairs_frequency = new Hashtable<PairElement, Integer>();
 
-        firstScan(cond_pattern_base, items_frequency);  //fp-tree header table will be created in the first scan
+        firstScan(cond_pattern_base, items_frequency, pairs_frequency);  //fp-tree header table will be created in the first scan
         secondScan(cond_pattern_base, items_frequency); //fp-tree will be created in the second scan
 
         cond_fptree_construction_calls++;
@@ -198,7 +200,7 @@ public class FPTree {
      * The following function parses the transaction, extracts the items from it,
      * and then updates the hash table with count.
      */
-    public void extractItems(String transaction, int count, Hashtable<String,Integer> items_frequency)
+    public void extractItems(String transaction, int count, Hashtable<String,Integer> items_frequency, Hashtable<PairElement,Integer> pairs_frequency)
     {
         String []items = transaction.split("\\s+"); //scan individual items in the transaction
         for(int i=0; i<items.length; i++)
@@ -207,6 +209,24 @@ public class FPTree {
             if(items_frequency.containsKey(items[i]))           //if this item already encountered before
                 freq = items_frequency.get(items[i]) + count; //increment frequency
             items_frequency.put(items[i],new Integer(freq)); //update item with new frequency
+        }
+
+        // Construct pairs of elements (in String form) here
+        // Second-to-last pairs with last
+        for (int i = 0; i < items.length - 1; i++) {
+            for (int j = i + 1; j < items.length; j++) {
+                // The pair
+                PairElement temp_pair = new PairElement(items[i], items[j]);
+
+                // Unified count for update
+                int freq = count;
+                if (pairs_frequency.containsKey(temp_pair)) {
+                    // If set present, count is old count + 1
+                    freq = pairs_frequency.get(temp_pair) + count;
+                }
+                // Default count is 1 otherwise
+                pairs_frequency.put(temp_pair, new Integer(freq));
+            }
         }
     }
 
@@ -280,13 +300,13 @@ public class FPTree {
      * no transaction id is provided
      * The FPTree header table will be created in this scan
     */
-    public void firstScan(File inputfile, Hashtable<String,Integer> items_frequency) throws IOException
+    public void firstScan(File inputfile, Hashtable<String,Integer> items_frequency, Hashtable<PairElement,Integer> pairs_frequency) throws IOException
     {
         BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(inputfile)));
         String transaction = null;
 
         while((transaction = br.readLine()) != null) //read input file (transaction database)
-            extractItems(transaction, 1, items_frequency);
+            extractItems(transaction, 1, items_frequency, pairs_frequency);
 
         br.close(); //file reading complete
 
@@ -294,7 +314,7 @@ public class FPTree {
     }
 
     //overloaded method - file reading done between lines [start_at] and [end_at]
-    public void firstScan(File inputfile, Hashtable<String,Integer> items_frequency, int start_at, int end_at) throws IOException
+    public void firstScan(File inputfile, Hashtable<String,Integer> items_frequency, Hashtable<PairElement,Integer> pairs_frequency, int start_at, int end_at) throws IOException
     {
         BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(inputfile)));
         String transaction = null;
@@ -306,7 +326,7 @@ public class FPTree {
             if(line_no < start_at)
                 continue;
             else if(line_no <= end_at)
-                extractItems(transaction, 1, items_frequency);
+                extractItems(transaction, 1, items_frequency, pairs_frequency);
             else
                 break;
         }
@@ -354,7 +374,7 @@ public class FPTree {
      * first scan of transactions entered as prefixes (conditional patter base).
      * each prefix is in the format <support>:<space separated item list>
     */
-    public void firstScan(ArrayList<String> cond_pattrn_base, Hashtable<String,Integer> items_frequency)
+    public void firstScan(ArrayList<String> cond_pattrn_base, Hashtable<String,Integer> items_frequency, Hashtable<PairElement,Integer> pairs_frequency)
     {
         for(int n=0; n<cond_pattrn_base.size(); n++)
         {
@@ -365,7 +385,7 @@ public class FPTree {
 
             int count = Integer.parseInt(tokens[0]);    //frequency of occurrence of the prefix
             String pattern = tokens[1];                 //get the actual pattern
-            extractItems(pattern, count, items_frequency);
+            extractItems(pattern, count, items_frequency, pairs_frequency);
         }                                                   //conditional pattern base completely traversed
         createFPTreeHeaderTable(items_frequency);   //FPTree header table created
     }
