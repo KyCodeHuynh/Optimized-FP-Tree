@@ -21,6 +21,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.Map;
 
 public class FPTree {
     private ArrayList<FPTreeHeaderElement> header_table;
@@ -230,12 +232,25 @@ public class FPTree {
         }
     }
 
+    public void setPairElementOrder(Hashtable<String,Integer> items_frequency, Hashtable<PairElement,Integer> pairs_frequency) {
+        // Sets order within a PairElement. E.g., if support(b) > support(a),
+        // then PairElement(a, b) becomes PairElement(b, a)
+        Iterator it = pairs_frequency.entrySet().iterator();
+        while (it.hasNext()) {
+            Map.Entry ent = (Map.Entry) it.next();
+            PairElement pair = (PairElement) ent.getKey();
+            if (items_frequency.get(pair.getFirst()) < items_frequency.get(pair.getSecond())) {
+                pair.flipOrder();
+            }
+        }
+    }
+
     /*
      * After the transactions are parsed and items are extracted,
      * we sort the items in descending order of frequencies
      * and create the FPTree header table.
      */
-    public void createFPTreeHeaderTable(Hashtable<String,Integer> items_frequency)
+    public void createFPTreeHeaderTable(Hashtable<String,Integer> items_frequency, Hashtable<PairElement, Integer> pairs_frequency)
     {
         Enumeration<String> e = items_frequency.keys();  //list of all items
         ArrayList<ItemElement> aie = new ArrayList<ItemElement>();  //placeholder to sort the frequent items
@@ -310,7 +325,9 @@ public class FPTree {
 
         br.close(); //file reading complete
 
-        createFPTreeHeaderTable(items_frequency);
+        setPairElementOrder(items_frequency, pairs_frequency);
+
+        createFPTreeHeaderTable(items_frequency, pairs_frequency);
     }
 
     //overloaded method - file reading done between lines [start_at] and [end_at]
@@ -333,7 +350,9 @@ public class FPTree {
 
         br.close(); //file reading complete
 
-        createFPTreeHeaderTable(items_frequency);
+        setPairElementOrder(items_frequency, pairs_frequency);
+
+        createFPTreeHeaderTable(items_frequency, pairs_frequency);
     }
     /*
      * second scan of transactions will create the FPTree and update the pointers in the FPTree header table.
@@ -371,7 +390,7 @@ public class FPTree {
     }
 
     /*
-     * first scan of transactions entered as prefixes (conditional patter base).
+     * first scan of transactions entered as prefixes (conditional pattern base).
      * each prefix is in the format <support>:<space separated item list>
     */
     public void firstScan(ArrayList<String> cond_pattrn_base, Hashtable<String,Integer> items_frequency, Hashtable<PairElement,Integer> pairs_frequency)
@@ -386,8 +405,11 @@ public class FPTree {
             int count = Integer.parseInt(tokens[0]);    //frequency of occurrence of the prefix
             String pattern = tokens[1];                 //get the actual pattern
             extractItems(pattern, count, items_frequency, pairs_frequency);
-        }                                                   //conditional pattern base completely traversed
-        createFPTreeHeaderTable(items_frequency);   //FPTree header table created
+        }
+                                          //conditional pattern base completely traversed
+        setPairElementOrder(items_frequency, pairs_frequency);
+
+        createFPTreeHeaderTable(items_frequency, pairs_frequency);   //FPTree header table created
     }
 
     /* second scan of transactions entered as conditional pattern base
