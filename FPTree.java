@@ -250,7 +250,7 @@ public class FPTree {
      * we sort the items in descending order of frequencies
      * and create the FPTree header table.
      */
-    public void createFPTreeHeaderTable(Hashtable<String,Integer> items_frequency, Hashtable<PairElement, Integer> pairs_frequency)
+    public void createFPTreeHeaderTable(Hashtable<String,Integer> items_frequency)
     {
         Enumeration<String> e = items_frequency.keys();  //list of all items
         ArrayList<ItemElement> aie = new ArrayList<ItemElement>();  //placeholder to sort the frequent items
@@ -301,11 +301,14 @@ public class FPTree {
                     PairElement pair = new PairElement(curItem, flistItem);
                     Double lift = pairwiseLifts.get(pair);
                     if (lift == null) {
-                        pair.setFirst(flistItem, curItem);
+                        pair.setFirst(flistItem);
+                        pair.setSecond(curItem);
                         lift = pairwiseLifts.get(pair);
                     }
 
-                    totalLift += lift;
+                    if (lift != null) {
+                        totalLift += lift;
+                    }
                 }
 
                 if (maxTotalLift < totalLift) {
@@ -326,7 +329,7 @@ public class FPTree {
         }
     }
 
-    public static Hashtable<PairElement,Double> computePairwiseLifts(Hashtable<String, Integer> itemsFrequencyTable,
+    public Hashtable<PairElement,Double> computePairwiseLifts(Hashtable<String, Integer> itemsFrequencyTable,
                                                               Hashtable<PairElement, Integer> pairFrequencyTable,
                                                               PairElement highestPair) {
         Hashtable<PairElement, Double> pairwiseLifts = new Hashtable<>();
@@ -357,7 +360,7 @@ public class FPTree {
         return pairwiseLifts;
     }
 
-    public static void pruneInfrequentItems(Hashtable<String, Integer> itemsFrequencyTable) {
+    public void pruneInfrequentItems(Hashtable<String, Integer> itemsFrequencyTable) {
         for(Iterator<Map.Entry<String, Integer>> it = itemsFrequencyTable.entrySet().iterator(); it.hasNext();) {
             Map.Entry<String, Integer> entry = it.next();
             if (entry.getValue() < support_threshold) {
@@ -424,7 +427,7 @@ public class FPTree {
 
         setPairElementOrder(items_frequency, pairs_frequency);
 
-        createFPTreeHeaderTable(items_frequency, pairs_frequency);
+        createHeaderTable(items_frequency, pairs_frequency);
     }
 
     //overloaded method - file reading done between lines [start_at] and [end_at]
@@ -449,7 +452,7 @@ public class FPTree {
 
         setPairElementOrder(items_frequency, pairs_frequency);
 
-        createFPTreeHeaderTable(items_frequency, pairs_frequency);
+        createHeaderTable(items_frequency, pairs_frequency);
     }
     /*
      * second scan of transactions will create the FPTree and update the pointers in the FPTree header table.
@@ -506,7 +509,7 @@ public class FPTree {
                                           //conditional pattern base completely traversed
         setPairElementOrder(items_frequency, pairs_frequency);
 
-        createFPTreeHeaderTable(items_frequency, pairs_frequency);   //FPTree header table created
+        createHeaderTable(items_frequency, pairs_frequency);   //FPTree header table created
     }
 
     /* second scan of transactions entered as conditional pattern base
