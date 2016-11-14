@@ -269,6 +269,29 @@ public class FPTree {
         } //FPTree header formed
     }
 
+    public void createHeaderTable(Hashtable<String,Integer> itemsFrequencyTable, Hashtable<PairElement,Integer> pairFrequencyTable) {
+        Hashtable<PairElement, Double> pairwiseLifts = computePairwiseLifts(itemsFrequencyTable, pairFrequencyTable);
+    }
+
+    public static Hashtable<PairElement,Double> computePairwiseLifts(Hashtable<String, Integer> itemsFrequencyTable,
+                                                              Hashtable<PairElement, Integer> pairFrequencyTable) {
+        Hashtable<PairElement, Double> pairwiseLifts = new Hashtable<>();
+
+        for (Map.Entry<PairElement, Integer> entry : pairFrequencyTable) {
+            PairElement pair = entry.getKey();
+            int pairFrequency = entry.getValue();
+
+            int firstFrequency = itemsFrequencyTable.get(pair.getFirst());
+            int secondFrequency = itemsFrequencyTable.get(pair.getSecond());
+
+            // TODO: Do we really need the * N?
+            double lift = ((double) pairFrequency) / (firstFrequency * secondFrequency);
+            pairwiseLifts.put(pair, lift);
+        }
+
+        return pairwiseLifts;
+    }
+
     /*
      * Following function inserts a prefix into prefix tree/FPTree with the corresponding count.
      */
