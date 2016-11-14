@@ -45,19 +45,28 @@ public class PairElement {
     @Override
     public String toString()
     {
-        // (item1, item2)
+        // Example result: (item1, item2)
         return "(" + item1 + "," + item2 + ")";
     }
 
     // Compares items setwise (ab = ba)
+    // NOTE: Hashtable will compare keys for equality
+    // using hashCode() and then equals()
+    // This allows us to quickly distinguish (a, b) vs (d, e) (via hashCode()),
+    // while still not being confused by (1, 23) vs. (12, 3) (via equals()),
+    // and treating (a, b) as equivalent to (b, a) (via equals())
     @Override
     public boolean equals(Object other) {
         boolean result = false;
         if (other instanceof PairElement) {
             PairElement that = (PairElement) other;
-            result = (this.item1 == that.item1 && this.item2 == that.item2) ||
-                     (this.item1 == that.item2 && this.item2 == that.item1);
+            result = (this.item1.equals(that.item1) && this.item2.equals(that.item2)) ||
+                     (this.item1.equals(that.item2) && this.item2.equals(that.item1));
         }
         return result;
+    }
+    @Override
+    public int hashCode() {
+        return item1.hashCode() + item2.hashCode();
     }
 }
