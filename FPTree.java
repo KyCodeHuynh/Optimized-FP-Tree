@@ -270,12 +270,15 @@ public class FPTree {
     }
 
     public void createHeaderTable(Hashtable<String,Integer> itemsFrequencyTable, Hashtable<PairElement,Integer> pairFrequencyTable) {
-        Hashtable<PairElement, Double> pairwiseLifts = computePairwiseLifts(itemsFrequencyTable, pairFrequencyTable);
+        PairElement highestPair = new PairElement();
+        Hashtable<PairElement, Double> pairwiseLifts = computePairwiseLifts(itemsFrequencyTable, pairFrequencyTable, highestPair);
     }
 
     public static Hashtable<PairElement,Double> computePairwiseLifts(Hashtable<String, Integer> itemsFrequencyTable,
-                                                              Hashtable<PairElement, Integer> pairFrequencyTable) {
+                                                              Hashtable<PairElement, Integer> pairFrequencyTable,
+                                                              PairElement highestPair) {
         Hashtable<PairElement, Double> pairwiseLifts = new Hashtable<>();
+        double maxLift = Double.MIN_VALUE;
 
         for (Map.Entry<PairElement, Integer> entry : pairFrequencyTable) {
             PairElement pair = entry.getKey();
@@ -287,6 +290,12 @@ public class FPTree {
             // TODO: Do we really need the * N?
             double lift = ((double) pairFrequency) / (firstFrequency * secondFrequency);
             pairwiseLifts.put(pair, lift);
+
+            if (maxLift < lift) {
+                maxLift = lift;
+                highestPair.setFirst(pair.getFirst());
+                highestPair.setSecond(pair.getSecond());
+            }
         }
 
         return pairwiseLifts;
