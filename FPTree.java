@@ -23,6 +23,7 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.HashSet;
 
 public class FPTree {
     private ArrayList<FPTreeHeaderElement> header_table;
@@ -273,9 +274,6 @@ public class FPTree {
         PairElement highestPair = new PairElement();
         Hashtable<PairElement, Double> pairwiseLifts = computePairwiseLifts(itemsFrequencyTable, pairFrequencyTable, highestPair);
 
-        // Prune out infrequent items from itemsFrequencyTable
-        pruneInfrequentItems(itemsFrequencyTable);
-
         // Add the items in the highest pair to the f-list
         ArrayList<String> flist = new ArrayList<>();
         String highestPairFirst = highestPair.getFirst();
@@ -283,49 +281,76 @@ public class FPTree {
         flist.add(highestPairFirst);
         flist.add(highestPairSecond);
 
-        // Remove items in highest pair from frequency table
-        itemsFrequencyTable.remove(highestPair.getFirst());
-        itemsFrequencyTable.remove(highestPair.getSecond());
+        int numOfFrequentItems = numOfFrequentItems(itemsFrequencyTable);
 
-        while (!itemsFrequencyTable.isEmpty()) {
+        // hash set to keep track of what items have been added to f-list so far
+        HashSet<String> flistItemSet = new HashSet<>();
+        flistItemSet.add(highestPairFirst);
+        flistItemSet.add(highestPairSecond);
+
+        while (flistItemSet.size() < numOfFrequentItems) {
             double maxTotalLift = Double.MIN_VALUE;
             String maxTotalLiftItem = "";
 
             for (Map.Entry<String, Integer> entry : itemsFrequencyTable.entrySet()) {
                 String curItem = entry.getKey();
-                // int curItemFrequency = curItem.getFrequency();
-                double totalLift = 0.0;
 
-                for (String flistItem : flist) {
-                    // int flistItemFrequency = flistItem.getFrequency();
-                    PairElement pair = new PairElement(curItem, flistItem);
-                    Double lift = pairwiseLifts.get(pair);
-                    if (lift == null) {
-                        pair.setFirst(flistItem);
-                        pair.setSecond(curItem);
-                        lift = pairwiseLifts.get(pair);
+                if (entry.getValue() >= support_threshold && !flistItemSet.contains(curItem)) {
+                    double totalLift = 0.0;
+
+                    for (String flistItem : flist) {
+                        PairElement pair = new PairElement(curItem, flistItem);
+                        Double lift = pairwiseLifts.get(pair);
+                        if (lift == null) {
+                            pair.setFirst(flistItem);
+                            pair.setSecond(curItem);
+                            lift = pairwiseLifts.get(pair);
+                        }
+
+                        if (lift != null) {
+                            totalLift += lift;
+                        }
                     }
 
-                    if (lift != null) {
-                        totalLift += lift;
+                    if (maxTotalLift < totalLift) {
+                        maxTotalLift = totalLift;
+                        maxTotalLiftItem = curItem;
                     }
-                }
-
-                if (maxTotalLift < totalLift) {
-                    maxTotalLift = totalLift;
-                    maxTotalLiftItem = curItem;
                 }
             }
 
             flist.add(maxTotalLiftItem);
-
-            // Remove the item just added to reduce search space for future iterations
-            itemsFrequencyTable.remove(maxTotalLiftItem);
+            flistItemSet.add(maxTotalLiftItem);
         }
 
         int length = flist.size();
         for (int i = 0; i < length; i++) {
             header_table.add(new FPTreeHeaderElement(flist.get(i)));
+        }
+
+        //printTables(flistItemSet, itemsFrequencyTable, pairFrequencyTable, flist);
+    }
+
+    public void printTables(HashSet<String> flistItemSet, Hashtable<String, Integer> items_frequency, 
+                                                Hashtable<PairElement, Integer> pairs_frequency, ArrayList<String> flist) {
+        System.out.println("items frequency");
+        for (Map.Entry<String, Integer> entry : items_frequency.entrySet()) {
+            System.out.println(entry.getKey() + " : " + entry.getValue());
+        }
+
+        System.out.println("pairs frequency");
+        for (Map.Entry<PairElement, Integer> entry : pairs_frequency.entrySet()) {
+            System.out.println(entry.getKey().getFirst() + ", " + entry.getKey().getSecond() + " : " + entry.getValue());
+        }
+
+        System.out.println("flist frequency");
+        for (String entry : flist) {
+            System.out.println(entry);
+        }
+
+        System.out.println("flistItemSet frequency");
+        for (String entry : flistItemSet) {
+            System.out.println(entry);
         }
     }
 
@@ -360,13 +385,15 @@ public class FPTree {
         return pairwiseLifts;
     }
 
-    public void pruneInfrequentItems(Hashtable<String, Integer> itemsFrequencyTable) {
+    public int numOfFrequentItems(Hashtable<String, Integer> itemsFrequencyTable) {
+        int count = 0;
         for(Iterator<Map.Entry<String, Integer>> it = itemsFrequencyTable.entrySet().iterator(); it.hasNext();) {
             Map.Entry<String, Integer> entry = it.next();
-            if (entry.getValue() < support_threshold) {
-                it.remove();
+            if (entry.getValue() >= support_threshold) {
+                count++;
             }
         }
+        return count;
     }
 
     /*
@@ -509,7 +536,7 @@ public class FPTree {
                                           //conditional pattern base completely traversed
         setPairElementOrder(items_frequency, pairs_frequency);
 
-        createHeaderTable(items_frequency, pairs_frequency);   //FPTree header table created
+        createFPTreeHeaderTable(items_frequency);   //FPTree header table created
     }
 
     /* second scan of transactions entered as conditional pattern base
