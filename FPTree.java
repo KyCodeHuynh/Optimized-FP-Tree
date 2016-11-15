@@ -23,6 +23,7 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.HashSet;
 
 public class FPTree {
     private ArrayList<FPTreeHeaderElement> header_table;
@@ -250,7 +251,7 @@ public class FPTree {
      * we sort the items in descending order of frequencies
      * and create the FPTree header table.
      */
-    public void createFPTreeHeaderTable(Hashtable<String,Integer> items_frequency, Hashtable<PairElement, Integer> pairs_frequency)
+    public void createFPTreeHeaderTable(Hashtable<String,Integer> items_frequency)
     {
         Enumeration<String> e = items_frequency.keys();  //list of all items
         ArrayList<ItemElement> aie = new ArrayList<ItemElement>();  //placeholder to sort the frequent items
@@ -267,6 +268,132 @@ public class FPTree {
             String itm = aie.get(i).getItem();
             header_table.add(new FPTreeHeaderElement(itm));
         } //FPTree header formed
+    }
+
+    public void createHeaderTable(Hashtable<String,Integer> itemsFrequencyTable, Hashtable<PairElement,Integer> pairFrequencyTable) {
+        PairElement highestPair = new PairElement();
+        Hashtable<PairElement, Double> pairwiseLifts = computePairwiseLifts(itemsFrequencyTable, pairFrequencyTable, highestPair);
+
+        // Add the items in the highest pair to the f-list
+        ArrayList<String> flist = new ArrayList<>();
+        String highestPairFirst = highestPair.getFirst();
+        String highestPairSecond = highestPair.getSecond();
+        flist.add(highestPairFirst);
+        flist.add(highestPairSecond);
+
+        int numOfFrequentItems = numOfFrequentItems(itemsFrequencyTable);
+
+        // hash set to keep track of what items have been added to f-list so far
+        HashSet<String> flistItemSet = new HashSet<>();
+        flistItemSet.add(highestPairFirst);
+        flistItemSet.add(highestPairSecond);
+
+        while (flistItemSet.size() < numOfFrequentItems) {
+            double maxTotalLift = Double.MIN_VALUE;
+            String maxTotalLiftItem = "";
+
+            for (Map.Entry<String, Integer> entry : itemsFrequencyTable.entrySet()) {
+                String curItem = entry.getKey();
+
+                if (entry.getValue() >= support_threshold && !flistItemSet.contains(curItem)) {
+                    double totalLift = 0.0;
+
+                    for (String flistItem : flist) {
+                        PairElement pair = new PairElement(curItem, flistItem);
+                        Double lift = pairwiseLifts.get(pair);
+                        if (lift == null) {
+                            pair.setFirst(flistItem);
+                            pair.setSecond(curItem);
+                            lift = pairwiseLifts.get(pair);
+                        }
+
+                        if (lift != null) {
+                            totalLift += lift;
+                        }
+                    }
+
+                    if (maxTotalLift < totalLift) {
+                        maxTotalLift = totalLift;
+                        maxTotalLiftItem = curItem;
+                    }
+                }
+            }
+
+            flist.add(maxTotalLiftItem);
+            flistItemSet.add(maxTotalLiftItem);
+        }
+
+        int length = flist.size();
+        for (int i = 0; i < length; i++) {
+            header_table.add(new FPTreeHeaderElement(flist.get(i)));
+        }
+
+        //printTables(flistItemSet, itemsFrequencyTable, pairFrequencyTable, flist);
+    }
+
+    public void printTables(HashSet<String> flistItemSet, Hashtable<String, Integer> items_frequency, 
+                                                Hashtable<PairElement, Integer> pairs_frequency, ArrayList<String> flist) {
+        System.out.println("items frequency");
+        for (Map.Entry<String, Integer> entry : items_frequency.entrySet()) {
+            System.out.println(entry.getKey() + " : " + entry.getValue());
+        }
+
+        System.out.println("pairs frequency");
+        for (Map.Entry<PairElement, Integer> entry : pairs_frequency.entrySet()) {
+            System.out.println(entry.getKey().getFirst() + ", " + entry.getKey().getSecond() + " : " + entry.getValue());
+        }
+
+        System.out.println("flist frequency");
+        for (String entry : flist) {
+            System.out.println(entry);
+        }
+
+        System.out.println("flistItemSet frequency");
+        for (String entry : flistItemSet) {
+            System.out.println(entry);
+        }
+    }
+
+    public Hashtable<PairElement,Double> computePairwiseLifts(Hashtable<String, Integer> itemsFrequencyTable,
+                                                              Hashtable<PairElement, Integer> pairFrequencyTable,
+                                                              PairElement highestPair) {
+        Hashtable<PairElement, Double> pairwiseLifts = new Hashtable<>();
+        double maxLift = Double.MIN_VALUE;
+
+        for (Map.Entry<PairElement, Integer> entry : pairFrequencyTable.entrySet()) {
+            PairElement pair = entry.getKey();
+            String first = pair.getFirst();
+            String second = pair.getSecond();
+            int firstFrequency = itemsFrequencyTable.get(first);
+            int secondFrequency = itemsFrequencyTable.get(second);
+
+            // Compute lift if both individual items are frequent
+            if (firstFrequency >= support_threshold && secondFrequency >= support_threshold) {
+                int pairFrequency = entry.getValue();
+
+                // TODO: Do we really need the * N?
+                double lift = ((double) pairFrequency) / (firstFrequency * secondFrequency);
+                pairwiseLifts.put(pair, lift);
+
+                if (maxLift < lift) {
+                    maxLift = lift;
+                    highestPair.setFirst(first);
+                    highestPair.setSecond(second);
+                }
+            }
+        }
+        return pairwiseLifts;
+    }
+
+    public int numOfFrequentItems(Hashtable<String, Integer> itemsFrequencyTable) {
+        int count = 0;
+        for(Iterator<Map.Entry<String, Integer>> it = itemsFrequencyTable.entrySet().iterator(); it.hasNext();) {
+            Map.Entry<String, Integer> entry = it.next();
+            if (entry.getValue() >= support_threshold) {
+                count++;
+            }
+        }
+        return count;
     }
 
     /*
@@ -327,7 +454,7 @@ public class FPTree {
 
         setPairElementOrder(items_frequency, pairs_frequency);
 
-        createFPTreeHeaderTable(items_frequency, pairs_frequency);
+        createHeaderTable(items_frequency, pairs_frequency);
     }
 
     //overloaded method - file reading done between lines [start_at] and [end_at]
@@ -352,7 +479,7 @@ public class FPTree {
 
         setPairElementOrder(items_frequency, pairs_frequency);
 
-        createFPTreeHeaderTable(items_frequency, pairs_frequency);
+        createHeaderTable(items_frequency, pairs_frequency);
     }
     /*
      * second scan of transactions will create the FPTree and update the pointers in the FPTree header table.
@@ -409,7 +536,7 @@ public class FPTree {
                                           //conditional pattern base completely traversed
         setPairElementOrder(items_frequency, pairs_frequency);
 
-        createFPTreeHeaderTable(items_frequency, pairs_frequency);   //FPTree header table created
+        createFPTreeHeaderTable(items_frequency);   //FPTree header table created
     }
 
     /* second scan of transactions entered as conditional pattern base
