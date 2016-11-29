@@ -398,7 +398,7 @@ public class FPTree {
                 double lift = ((double) pairFrequency) / (firstFrequency * secondFrequency);
                 pairwiseLifts.put(pair, lift);
 
-                if (maxLift < lift) {
+                if (maxLift <= lift) {
                     maxLift = lift;
                     highestPair.setFirst(first);
                     highestPair.setSecond(second);
@@ -944,10 +944,10 @@ public class FPTree {
         System.out.println("\n");
 
         /* 1. Will print the header table. */
-        //fpt.traverseFPTreeHeaderTable();
+        fpt.traverseFPTreeHeaderTable();
 
         /* 2. Will print the prefix tree. */
-        //fpt.traverseFPTree();
+        fpt.traverseFPTree();
 
         /* 3. Will mine all the frequent patterns. */
         fpt.minePatternsByFPGrowth("");
