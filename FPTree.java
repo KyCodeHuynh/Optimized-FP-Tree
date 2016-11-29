@@ -274,14 +274,24 @@ public class FPTree {
         PairElement highestPair = new PairElement();
         Hashtable<PairElement, Double> pairwiseLifts = computePairwiseLifts(itemsFrequencyTable, pairFrequencyTable, highestPair);
 
+        int numOfFrequentItems = numOfFrequentItems(itemsFrequencyTable);
+
+        // Check if there are 0 or only 1 frequent item
+        if (numOfFrequentItems == 0) {
+            return;
+        } else if (numOfFrequentItems == 1) {
+            String onlyFrequentItem = getFirstFrequentItem(itemsFrequencyTable);
+            header_table.add(new FPTreeHeaderElement(onlyFrequentItem));
+            return;
+        }
+
         // Add the items in the highest pair to the f-list
         ArrayList<String> flist = new ArrayList<>();
         String highestPairFirst = highestPair.getFirst();
         String highestPairSecond = highestPair.getSecond();
+
         flist.add(highestPairFirst);
         flist.add(highestPairSecond);
-
-        int numOfFrequentItems = numOfFrequentItems(itemsFrequencyTable);
 
         // hash set to keep track of what items have been added to f-list so far
         HashSet<String> flistItemSet = new HashSet<>();
@@ -325,10 +335,23 @@ public class FPTree {
 
         int length = flist.size();
         for (int i = 0; i < length; i++) {
+            if (flist.get(i) == null) {
+                System.out.println("WELL SHIT");
+            }
             header_table.add(new FPTreeHeaderElement(flist.get(i)));
         }
 
-        //printTables(flistItemSet, itemsFrequencyTable, pairFrequencyTable, flist);
+        // printTables(flistItemSet, itemsFrequencyTable, pairFrequencyTable, flist);
+    }
+
+    public String getFirstFrequentItem(Hashtable<String, Integer> itemsFrequencyTable) {
+        for(Iterator<Map.Entry<String, Integer>> it = itemsFrequencyTable.entrySet().iterator(); it.hasNext();) {
+            Map.Entry<String, Integer> entry = it.next();
+            if (entry.getValue() >= support_threshold) {
+                return entry.getKey();
+            }
+        }
+        return null;
     }
 
     public void printTables(HashSet<String> flistItemSet, Hashtable<String, Integer> items_frequency, 
