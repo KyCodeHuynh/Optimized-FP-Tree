@@ -426,13 +426,21 @@ public class FPTree {
     {
         String []items = prefix.split("\\s+");  //scan individual items in the transaction/prefix
         ArrayList<ItemElement> aie = new ArrayList<ItemElement>(); //placeholder for sorting the frequent items in a single transaction/prefix
+        HashSet<String> set = new HashSet<>();
         for(int i=0; i<items.length; i++)
         {
             int frequency = items_frequency.get(items[i]);
             if(frequency>=support_threshold)
-                aie.add(new ItemElement(items[i],frequency));
+                set.add(items[i]);
         }
-        Collections.sort(aie);  //prefix is sorted, we will now add it to the FPTree
+
+        for (FPTreeHeaderElement element : header_table) {
+            String itemString = element.getItem();
+            if (set.contains(itemString)) {
+                aie.add(new ItemElement(itemString, items_frequency.get(itemString)));
+            }
+        }
+        // Collections.sort(aie);  //prefix is sorted, we will now add it to the FPTree
 
         FPTreeNode tmp = fptree_root;
         for(int i=0; i<aie.size(); i++) //adding the prefix in FPTree now
