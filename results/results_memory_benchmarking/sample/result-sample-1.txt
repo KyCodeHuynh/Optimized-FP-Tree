@@ -1,0 +1,95 @@
+
+
+TreeSize: 19	 BuildingTime: 6
+
+
+
+Average Depth: 2.8181818181818183
+Average Spread: 1.6363636363636365
+
+memory per node: 2792
+memory for all nodes: 53048
+ z : 1
+ z a : 1
+ z x : 1
+ z y : 1
+ z x y : 1
+ z a x : 1
+ z a y : 1
+ z a x y : 1
+ x : 2
+ x g : 1
+ x g c : 1
+ x c : 1
+ x a : 1
+ y : 2
+ y g : 1
+ y g c : 1
+ y g x : 1
+ y g c x : 1
+ y c : 1
+ y c x : 1
+ y a : 1
+ y a x : 1
+ y x : 2
+ b : 1
+ b a : 1
+ b c : 1
+ b a c : 1
+ c : 2
+ c a : 1
+ a : 4
+ e : 3
+ e a : 2
+ f : 3
+ f e : 3
+ f a : 2
+ f e a : 2
+ d : 2
+ d e : 2
+ d f : 2
+ d a : 1
+ d f a : 1
+ d e f : 2
+ d e a : 1
+ d e f a : 1
+ h : 1
+ h d : 1
+ h e : 1
+ h f : 1
+ h g : 1
+ h f g : 1
+ h e f : 1
+ h e g : 1
+ h e f g : 1
+ h d e : 1
+ h d f : 1
+ h d g : 1
+ h d f g : 1
+ h d e f : 1
+ h d e g : 1
+ h d e f g : 1
+ g : 2
+ g f : 1
+ g f d : 1
+ g f e : 1
+ g f d e : 1
+ g e : 1
+ g e d : 1
+ g d : 1
+ g c : 1
+
+
+Mining time: 5
+
+
+Total time: 11
+
+
+
+Direct FP Tree Construction: 	1
+Conditional FP-Tree Constructions: 	22
+Mining Frequent Itemsets calls: 	23
+Direct mining from single path calls: 	47
+No. of single path: 	13
+

@@ -1,0 +1,44 @@
+
+
+TreeSize: 6294	 BuildingTime: 26889
+
+
+
+Average Depth: 3.2801832329271012
+Average Spread: 242.03846153846155
+
+ 120 : 4973
+ 177 : 4629
+ 692 : 4993
+ 789 : 4309
+ 829 : 6810
+ 529 : 7057
+ 766 : 6265
+ 362 : 4388
+ 460 : 4438
+ 684 : 5408
+ 438 : 4511
+ 354 : 5835
+ 722 : 5845
+ 914 : 4037
+ 883 : 4902
+ 32 : 4248
+ 937 : 4681
+ 494 : 5102
+ 682 : 4132
+ 368 : 7828
+ 470 : 4137
+ 419 : 5057
+ 39 : 4258
+ 145 : 4559
+ 283 : 4082
+ 217 : 5375
+
+
+
+Direct FP Tree Construction: 	1
+Conditional FP-Tree Constructions: 	26
+Mining Frequent Itemsets calls: 	27
+Direct mining from single path calls: 	0
+No. of single path: 	0
+

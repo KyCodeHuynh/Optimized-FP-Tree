@@ -1,0 +1,57 @@
+
+
+TreeSize: 12	 BuildingTime: 373
+
+
+
+Average Depth: 2.45
+Average Spread: 2.2
+
+memory per node: 1616
+memory for all nodes: 19392
+ 36 : 6812
+ 36 90 : 6464
+ 36 90 85 : 6464
+ 36 90 34 : 6272
+ 36 90 86 : 6272
+ 36 90 34 86 : 6272
+ 36 90 85 34 : 6272
+ 36 90 85 86 : 6272
+ 36 90 85 34 86 : 6272
+ 36 34 : 6602
+ 36 34 85 : 6602
+ 36 34 86 : 6602
+ 36 34 85 86 : 6602
+ 36 86 : 6620
+ 36 86 85 : 6620
+ 36 85 : 6812
+ 90 : 7488
+ 90 85 : 7488
+ 90 34 : 7296
+ 90 86 : 7288
+ 90 34 86 : 7288
+ 90 85 34 : 7296
+ 90 85 86 : 7288
+ 90 85 34 86 : 7288
+ 34 : 7914
+ 34 85 : 7914
+ 34 86 : 7906
+ 34 85 86 : 7906
+ 86 : 7924
+ 86 85 : 7924
+ 85 : 8124
+
+
+Mining time: 2
+
+
+Total time: 375
+
+
+
+Direct FP Tree Construction: 	1
+Conditional FP-Tree Constructions: 	9
+Mining Frequent Itemsets calls: 	10
+Direct mining from single path calls: 	22
+No. of single path: 	6
+

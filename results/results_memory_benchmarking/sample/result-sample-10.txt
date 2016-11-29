@@ -1,0 +1,24 @@
+
+
+TreeSize: 1	 BuildingTime: 4
+
+
+
+Average Depth: NaN
+Average Spread: NaN
+
+
+
+Mining time: 0
+
+
+Total time: 4
+
+
+
+Direct FP Tree Construction: 	1
+Conditional FP-Tree Constructions: 	0
+Mining Frequent Itemsets calls: 	1
+Direct mining from single path calls: 	0
+No. of single path: 	0
+

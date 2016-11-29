@@ -1,0 +1,26 @@
+
+
+TreeSize: 1	 BuildingTime: 26968
+
+
+
+Average Depth: NaN
+Average Spread: NaN
+
+memory per node: 88
+memory for all nodes: 88
+
+
+Mining time: 0
+
+
+Total time: 26968
+
+
+
+Direct FP Tree Construction: 	1
+Conditional FP-Tree Constructions: 	0
+Mining Frequent Itemsets calls: 	1
+Direct mining from single path calls: 	0
+No. of single path: 	0
+

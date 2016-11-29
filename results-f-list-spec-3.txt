@@ -1,0 +1,62 @@
+
+
+TreeSize: 13	 BuildingTime: 41
+
+
+
+Average Depth: 2.0
+Average Spread: 2.0
+
+-root:500:3 
+	-a:200:1 
+		-d:5:1 
+			-e:5:1 
+				-f:5:0 
+	-b:200:1 
+		-d:5:1 
+			-e:5:1 
+				-f:5:0 
+	-c:100:1 
+		-d:5:1 
+			-e:5:1 
+				-f:5:0 
+ a : 200
+ b : 200
+ c : 100
+ d : 15
+ d c : 5
+ d b : 5
+ d a : 5
+ f : 15
+ f c : 5
+ f c d : 5
+ f c e : 5
+ f c d e : 5
+ f b : 5
+ f b d : 5
+ f b e : 5
+ f b d e : 5
+ f a : 5
+ f a d : 5
+ f a e : 5
+ f a d e : 5
+ f e : 15
+ f e d : 15
+ f d : 15
+ e : 15
+ e c : 5
+ e c d : 5
+ e b : 5
+ e b d : 5
+ e a : 5
+ e a d : 5
+ e d : 15
+
+
+
+Direct FP Tree Construction: 	1
+Conditional FP-Tree Constructions: 	18
+Mining Frequent Itemsets calls: 	19
+Direct mining from single path calls: 	13
+No. of single path: 	7
+

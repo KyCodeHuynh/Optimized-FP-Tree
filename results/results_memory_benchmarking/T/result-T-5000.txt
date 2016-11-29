@@ -1,0 +1,36 @@
+
+
+TreeSize: 286	 BuildingTime: 27830
+
+
+
+Average Depth: 2.6021179363989932
+Average Spread: 28.5
+
+memory per node: 33568
+memory for all nodes: 9600448
+ 419 : 5057
+ 354 : 5835
+ 217 : 5375
+ 722 : 5845
+ 766 : 6265
+ 684 : 5408
+ 529 : 7057
+ 494 : 5102
+ 829 : 6810
+ 368 : 7828
+
+
+Mining time: 8
+
+
+Total time: 27838
+
+
+
+Direct FP Tree Construction: 	1
+Conditional FP-Tree Constructions: 	10
+Mining Frequent Itemsets calls: 	11
+Direct mining from single path calls: 	0
+No. of single path: 	0
+
