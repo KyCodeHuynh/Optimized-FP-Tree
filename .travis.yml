@@ -1,5 +1,0 @@
-language: java
-  
-script:
-  - javac *.java
-  - java FPTree data/sample.dat 2
