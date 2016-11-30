@@ -1,0 +1,20 @@
+
+
+Number of Nodes: 22560	 Computation Time (Construction) 1705
+
+
+
+Average Depth: 4.682872226022921
+Average Branching Factor: 402.8392857142857
+
+Size in memory: 62924712960
+
+
+Computation Time (Mining): 161
+
+
+Computation Time (Total): 1866
+
+
+
+
