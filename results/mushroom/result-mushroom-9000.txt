@@ -1,0 +1,20 @@
+
+
+Number of Nodes: 1	 Computation Time (Constructing): 1019
+
+
+
+Average Depth: NaN
+Average Branching Factor: NaN
+
+Size of FPTree in Memory: 88
+
+
+Computation Time (Mining): 0
+
+
+Computation Time (Total): 1019
+
+
+
+

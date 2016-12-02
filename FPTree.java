@@ -24,13 +24,14 @@ import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.HashSet;
+import com.javamex.classmexer.MemoryUtil;
 
 public class FPTree {
     private ArrayList<FPTreeHeaderElement> header_table;
     private FPTreeNode fptree_root;
     private int support_threshold;
 
-    //performance measurement counters
+    //performance measurement countersint treeSize = fpt.computeTreeSize();
     static int fptree_construction_calls = 0;       //FP-tree construction from file
     static int cond_fptree_construction_calls = 0;  //conditional FP-tree constructions
     static int fptree_mining_calls = 0;             //FP-tree mining call
@@ -274,14 +275,24 @@ public class FPTree {
         PairElement highestPair = new PairElement();
         Hashtable<PairElement, Double> pairwiseLifts = computePairwiseLifts(itemsFrequencyTable, pairFrequencyTable, highestPair);
 
+        int numOfFrequentItems = numOfFrequentItems(itemsFrequencyTable);
+
+        // Check if there are 0 or only 1 frequent item
+        if (numOfFrequentItems == 0) {
+            return;
+        } else if (numOfFrequentItems == 1) {
+            String onlyFrequentItem = getFirstFrequentItem(itemsFrequencyTable);
+            header_table.add(new FPTreeHeaderElement(onlyFrequentItem));
+            return;
+        }
+
         // Add the items in the highest pair to the f-list
         ArrayList<String> flist = new ArrayList<>();
         String highestPairFirst = highestPair.getFirst();
         String highestPairSecond = highestPair.getSecond();
+
         flist.add(highestPairFirst);
         flist.add(highestPairSecond);
-
-        int numOfFrequentItems = numOfFrequentItems(itemsFrequencyTable);
 
         // hash set to keep track of what items have been added to f-list so far
         HashSet<String> flistItemSet = new HashSet<>();
@@ -325,10 +336,23 @@ public class FPTree {
 
         int length = flist.size();
         for (int i = 0; i < length; i++) {
+            if (flist.get(i) == null) {
+                System.out.println("WELL SHIT");
+            }
             header_table.add(new FPTreeHeaderElement(flist.get(i)));
         }
 
-        //printTables(flistItemSet, itemsFrequencyTable, pairFrequencyTable, flist);
+        // printTables(flistItemSet, itemsFrequencyTable, pairFrequencyTable, flist);
+    }
+
+    public String getFirstFrequentItem(Hashtable<String, Integer> itemsFrequencyTable) {
+        for(Iterator<Map.Entry<String, Integer>> it = itemsFrequencyTable.entrySet().iterator(); it.hasNext();) {
+            Map.Entry<String, Integer> entry = it.next();
+            if (entry.getValue() >= support_threshold) {
+                return entry.getKey();
+            }
+        }
+        return null;
     }
 
     public void printTables(HashSet<String> flistItemSet, Hashtable<String, Integer> items_frequency, 
@@ -375,7 +399,7 @@ public class FPTree {
                 double lift = ((double) pairFrequency) / (firstFrequency * secondFrequency);
                 pairwiseLifts.put(pair, lift);
 
-                if (maxLift < lift) {
+                if (maxLift <= lift) {
                     maxLift = lift;
                     highestPair.setFirst(first);
                     highestPair.setSecond(second);
@@ -403,13 +427,21 @@ public class FPTree {
     {
         String []items = prefix.split("\\s+");  //scan individual items in the transaction/prefix
         ArrayList<ItemElement> aie = new ArrayList<ItemElement>(); //placeholder for sorting the frequent items in a single transaction/prefix
+        HashSet<String> set = new HashSet<>();
         for(int i=0; i<items.length; i++)
         {
             int frequency = items_frequency.get(items[i]);
             if(frequency>=support_threshold)
-                aie.add(new ItemElement(items[i],frequency));
+                set.add(items[i]);
         }
-        Collections.sort(aie);  //prefix is sorted, we will now add it to the FPTree
+
+        for (FPTreeHeaderElement element : header_table) {
+            String itemString = element.getItem();
+            if (set.contains(itemString)) {
+                aie.add(new ItemElement(itemString, items_frequency.get(itemString)));
+            }
+        }
+        // Collections.sort(aie);  //prefix is sorted, we will now add it to the FPTree
 
         FPTreeNode tmp = fptree_root;
         for(int i=0; i<aie.size(); i++) //adding the prefix in FPTree now
@@ -915,19 +947,33 @@ public class FPTree {
         totalTime = endTime - startTime;
 
         System.out.println("\n");
-        System.out.println("TreeSize: " + fpt.computeTreeSize() + "\t " + "BuildingTime: " + totalTime);
+        int treeSize = fpt.computeTreeSize();
+        System.out.println("TreeSize: " + treeSize + "\t " + "BuildingTime: " + totalTime);
         System.out.println("\n");
         fpt.printTreeDetails();
         System.out.println("\n");
 
         /* 1. Will print the header table. */
-        //fpt.traverseFPTreeHeaderTable();
+        fpt.traverseFPTreeHeaderTable();
 
         /* 2. Will print the prefix tree. */
-        //fpt.traverseFPTree();
+        fpt.traverseFPTree();
+
+        long one_node_memory = MemoryUtil.deepMemoryUsageOf(fpt.fptree_root);
+        System.out.println("Size of one node: " + one_node_memory);
+        System.out.println("Size in memory: " + one_node_memory * treeSize);
 
         /* 3. Will mine all the frequent patterns. */
+        long startTimetwo, endTimetwo, totalTimetwo;
+        startTimetwo = System.currentTimeMillis();
         fpt.minePatternsByFPGrowth("");
+        endTimetwo = System.currentTimeMillis();
+        totalTimetwo = endTimetwo - startTimetwo;
+
+        System.out.println("\n");
+        System.out.println("Computation Time (Mining): " + totalTimetwo);
+        System.out.println("\n");
+        System.out.println("Computation Time (Total): " + (totalTime + totalTimetwo));
         System.out.println("\n");
         fpt.printFunctionCallStats();
         System.out.println("\n");

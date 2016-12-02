@@ -7,10 +7,12 @@ An optimized FP-tree data structure for the FP-Growth data mining algorithm.
 * Please make sure you have Java 1.8
 
 * Compile all the java programs in the directory by using the following command:
-    javac *.java
+    javac *.java -cp classmexer.jar *.java FPTree.java
 
 * Run FPTree on the given sample.dat file under the sub-directory data as follows:
-    java FPTree data/sample.dat 2
+    java -javaagent:classmexer.jar FPTree <filename> <min_sup>
+
+    ex: java -javaagent:classmexer.jar FPTree data/sample.dat 2
 
 * You need to provide the filename (along with its path) and the support as arguments.
 
