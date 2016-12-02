@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.Hashtable;
+import com.javamex.classmexer.MemoryUtil;
 
 
 public class FPTree {
@@ -393,7 +394,7 @@ public class FPTree {
     {
         for(int i=0; i<depth; i++)  //tabs printed as per the depth
             System.out.print("\t");
-        System.out.print("-" + node + "\n");    //print node : its support : no. of children
+        //System.out.print("-" + node + "\n");    //print node : its support : no. of children
         for(int i=0; i<node.getChildrenCount(); i++)
         {
             FPTreeNode tmp = node.getChild(i);
@@ -412,7 +413,7 @@ public class FPTree {
     {
         for(int i=0; i<header_table.size(); i++)
         {
-            System.out.print(header_table.get(i).getItem()+": "); //print item
+            //System.out.print(header_table.get(i).getItem()+": "); //print item
             FPTreeNode tmp = header_table.get(i).getNodeLink();
             while(tmp!=null)
             {
@@ -443,7 +444,7 @@ public class FPTree {
     {
         String prev = curr;
         curr = prev + " " + fptn.getItem();
-        System.out.print(curr + " : " + fptn.getFrequency() + "\n");    //print combination with support
+        //System.out.print(curr + " : " + fptn.getFrequency() + "\n");    //print combination with support
         if(fptn.getChildrenCount()==1)
         {
             genAllCombinations(fptn.getChild(0), prev);     //combinations not including the item at this index
@@ -542,7 +543,7 @@ public class FPTree {
             {
                 FPTreeHeaderElement elmnt = header_table.get(i);
                 String itemset = curr + " " + elmnt.getItem() + " : " + this.getIndividualItemSupport(elmnt);
-                System.out.print(itemset + "\n");   //print frequent item set containing this element
+                //System.out.print(itemset + "\n");   //print frequent item set containing this element
 
                 ArrayList<String> conditional_pattern_base = this.getConditionalPatternBase(elmnt); //get the conditional pattern base
                 FPTree subtree = new FPTree(conditional_pattern_base, support_threshold);   //create FP-tree from this conditional pattern base
@@ -586,7 +587,7 @@ public class FPTree {
                     continue;               //then skip it, no need to deal with its projected database
 
                 String itemset = curr + " " + elmnt.getItem() + " : " + prj_supp;
-                System.out.print(itemset + "\n");   //print frequent item set containing this element
+                //System.out.print(itemset + "\n");   //print frequent item set containing this element
 
                 ArrayList<String> conditional_pattern_base = this.getConditionalPatternBase(elmnt); //get the conditional pattern base
                 FPTree subtree = new FPTree(conditional_pattern_base, support_val); //create FP-tree from projected database, with higher support
@@ -715,7 +716,7 @@ public class FPTree {
     public String printTreeDetails() {
 
         String ret = "\nAverage Depth: "+computeAvgDepthOfFrequentElements();
-        ret += "\nAverage Spread: "+computeAvgSpreadOfFrequentElements();
+        ret += "\nAverage Branching Factor: "+computeAvgSpreadOfFrequentElements();
 
         System.out.print(ret);
         return ret;
@@ -746,7 +747,8 @@ public class FPTree {
         totalTime = endTime - startTime;
 
         System.out.println("\n");
-        System.out.println("TreeSize: " + fpt.computeTreeSize() + "\t " + "BuildingTime: " + totalTime);
+        int treeSize = fpt.computeTreeSize();
+        System.out.println("Number of Nodes: " + treeSize + "\t " + "Computation Time (Construction) " + totalTime);
         System.out.println("\n");
         fpt.printTreeDetails();
         System.out.println("\n");
@@ -756,11 +758,24 @@ public class FPTree {
 
         /* 2. Will print the prefix tree. */
         //fpt.traverseFPTree();
+        long one_node_memory = MemoryUtil.deepMemoryUsageOf(fpt.fptree_root);
+        //System.out.println("memory per node: " + one_node_memory);
+        System.out.println("Size in memory: " + one_node_memory * treeSize);
 
         /* 3. Will mine all the frequent patterns. */
+        long startTimetwo, endTimetwo, totalTimetwo;
+        startTimetwo = System.currentTimeMillis();
         fpt.minePatternsByFPGrowth("");
+        endTimetwo = System.currentTimeMillis();
+        totalTimetwo = endTimetwo - startTimetwo;
+
+
+         System.out.println("\n");
+         System.out.println("Computation Time (Mining): " + totalTimetwo);
+         System.out.println("\n");
+         System.out.println("Computation Time (Total): " + (totalTime + totalTimetwo));
         System.out.println("\n");
-        fpt.printFunctionCallStats();
+        //fpt.printFunctionCallStats();
         System.out.println("\n");
 
     }
