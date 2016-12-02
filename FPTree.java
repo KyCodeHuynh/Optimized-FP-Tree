@@ -24,13 +24,14 @@ import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.HashSet;
+import com.javamex.classmexer.MemoryUtil;
 
 public class FPTree {
     private ArrayList<FPTreeHeaderElement> header_table;
     private FPTreeNode fptree_root;
     private int support_threshold;
 
-    //performance measurement counters
+    //performance measurement countersint treeSize = fpt.computeTreeSize();
     static int fptree_construction_calls = 0;       //FP-tree construction from file
     static int cond_fptree_construction_calls = 0;  //conditional FP-tree constructions
     static int fptree_mining_calls = 0;             //FP-tree mining call
@@ -946,7 +947,8 @@ public class FPTree {
         totalTime = endTime - startTime;
 
         System.out.println("\n");
-        System.out.println("TreeSize: " + fpt.computeTreeSize() + "\t " + "BuildingTime: " + totalTime);
+        int treeSize = fpt.computeTreeSize();
+        System.out.println("TreeSize: " + treeSize + "\t " + "BuildingTime: " + totalTime);
         System.out.println("\n");
         fpt.printTreeDetails();
         System.out.println("\n");
@@ -957,8 +959,21 @@ public class FPTree {
         /* 2. Will print the prefix tree. */
         fpt.traverseFPTree();
 
+        long one_node_memory = MemoryUtil.deepMemoryUsageOf(fpt.fptree_root);
+        System.out.println("Size of one node: " + one_node_memory);
+        System.out.println("Size in memory: " + one_node_memory * treeSize);
+
         /* 3. Will mine all the frequent patterns. */
+        long startTimetwo, endTimetwo, totalTimetwo;
+        startTimetwo = System.currentTimeMillis();
         fpt.minePatternsByFPGrowth("");
+        endTimetwo = System.currentTimeMillis();
+        totalTimetwo = endTimetwo - startTimetwo;
+
+        System.out.println("\n");
+        System.out.println("Computation Time (Mining): " + totalTimetwo);
+        System.out.println("\n");
+        System.out.println("Computation Time (Total): " + (totalTime + totalTimetwo));
         System.out.println("\n");
         fpt.printFunctionCallStats();
         System.out.println("\n");
